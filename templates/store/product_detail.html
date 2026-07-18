@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} | ShopZone{% endblock %}
+{% block meta_description %}{{ product.description|truncatewords:20 }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Breadcrumb -->
+  <nav style="font-size:0.85rem;color:var(--text-muted);margin-bottom:2rem;">
+    <a href="{% url 'store:home' %}" style="color:var(--text-muted);">Home</a> /
+    <a href="{% url 'store:product_list' %}" style="color:var(--text-muted);">Products</a> /
+    <a href="{{ product.category.get_absolute_url }}" style="color:var(--text-muted);">{{ product.category.name }}</a> /
+    <span style="color:var(--text-light);">{{ product.name }}</span>
+  </nav>
+
+  <div class="row g-5">
+    <!-- Product Image -->
+    <div class="col-md-5">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;aspect-ratio:1;">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:100%;height:100%;object-fit:cover;">
+        {% else %}
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:8rem;">🛍️</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="col-md-7">
+      <span style="color:var(--primary-light);font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">
+        {{ product.category.name }}
+      </span>
+      <h1 style="font-size:1.8rem;font-weight:800;color:var(--text-light);margin:0.5rem 0 1rem;letter-spacing:-0.5px;">
+        {{ product.name }}
+      </h1>
+
+      <!-- Rating -->
+      <div class="product-rating mb-3" style="font-size:1rem;">
+        <span class="stars" style="font-size:1.1rem;">
+          {% for i in "12345" %}
+            {% if forloop.counter <= product.average_rating %}★{% else %}☆{% endif %}
+          {% endfor %}
+        </span>
+        <span>{{ product.average_rating }}/5</span>
+        <span>({{ reviews.count }} reviews)</span>
+      </div>
+
+      <!-- Price -->
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <span style="font-size:2rem;font-weight:800;color:var(--primary-light);">₹{{ product.get_price }}</span>
+        {% if product.discount_price %}
+          <span style="font-size:1.1rem;color:var(--text-muted);text-decoration:line-through;">₹{{ product.price }}</span>
+          <span class="discount-badge" style="font-size:0.9rem;padding:0.3rem 0.8rem;">Save {{ product.discount_percentage }}%</span>
+        {% endif %}
+      </div>
+
+      <!-- Stock -->
+      <div class="mb-4">
+        {% if product.stock > 0 %}
+          <span style="color:var(--success);font-weight:600;font-size:0.9rem;">
+            <i class="bi bi-check-circle-fill"></i> In Stock ({{ product.stock }} units)
+          </span>
+        {% else %}
+          <span style="color:var(--danger);font-weight:600;font-size:0.9rem;">
+            <i class="bi bi-x-circle-fill"></i> Out of Stock
+          </span>
+        {% endif %}
+      </div>
+
+      <!-- Description -->
+      <p style="color:var(--text-muted);line-height:1.8;margin-bottom:2rem;">{{ product.description }}</p>
+
+      <!-- Add to Cart -->
+      {% if product.stock > 0 %}
+      <form method="post" action="{% url 'store:add_to_cart' product.pk %}" class="d-flex gap-3 align-items-center">
+        {% csrf_token %}
+        <div class="qty-control">
+          <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+          <input type="number" name="quantity" id="qty" value="1" min="1" max="{{ product.stock }}" class="qty-input">
+          <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+        <button type="submit" class="btn-primary-custom" id="add-cart-btn">
+          <i class="bi bi-bag-plus"></i> Add to Cart
+        </button>
+      </form>
+      {% endif %}
+
+      <!-- Meta info -->
+      <div class="mt-4 pt-4" style="border-top:1px solid var(--border);">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);">
+          <span>SKU: #{{ product.pk }}</span>
+          <span>Category: {{ product.category.name }}</span>
+          <span>Added: {{ product.created_at|date:"M d, Y" }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REVIEWS ── -->
+  <div class="mt-5 pt-4" style="border-top:1px solid var(--border);">
+    <div class="row g-4">
+      <div class="col-md-8">
+        <h2 class="section-title mb-4">Customer Reviews</h2>
+        {% if reviews %}
+          {% for review in reviews %}
+          <div class="card-dark mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <strong style="color:var(--text-light);">{{ review.user.get_full_name|default:review.user.username }}</strong>
+                <div class="star-rating" style="font-size:0.9rem;">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              <span style="font-size:0.8rem;color:var(--text-muted);">{{ review.created_at|date:"M d, Y" }}</span>
+            </div>
+            <p style="color:var(--text-muted);margin:0;font-size:0.9rem;">{{ review.comment }}</p>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state" style="padding:2rem;">
+            <div class="empty-state-icon" style="font-size:2.5rem;">💬</div>
+            <div class="empty-state-title">No reviews yet</div>
+            <p>Be the first to review this product!</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Write Review -->
+      <div class="col-md-4">
+        <div class="card-dark">
+          <h5 style="color:var(--text-light);font-weight:700;margin-bottom:1rem;">Write a Review</h5>
+          {% if user.is_authenticated %}
+            {% if user_reviewed %}
+              <div style="color:var(--text-muted);font-size:0.9rem;text-align:center;padding:1rem;">
+                <i class="bi bi-check-circle" style="color:var(--success);font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>
+                You've already reviewed this product.
+              </div>
+            {% else %}
+              <form method="post" action="{{ product.get_absolute_url }}">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label class="form-label">Rating</label>
+                  {{ review_form.rating }}
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Your Review</label>
+                  {{ review_form.comment }}
+                </div>
+                <button type="submit" class="btn-primary-custom w-100">
+                  <i class="bi bi-send"></i> Submit Review
+                </button>
+              </form>
+            {% endif %}
+          {% else %}
+            <div style="text-align:center;color:var(--text-muted);font-size:0.9rem;padding:1rem;">
+              <a href="{% url 'accounts:login' %}" class="btn-primary-custom" style="font-size:0.85rem;">Login to Review</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RELATED PRODUCTS ── -->
+  {% if related_products %}
+  <div class="mt-5 pt-4" style="border-top:1px solid var(--border);">
+    <h2 class="section-title mb-4">Related Products</h2>
+    <div class="products-grid">
+      {% for product in related_products %}
+        {% include 'store/_product_card.html' %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+function changeQty(delta) {
+  const input = document.getElementById('qty');
+  const val = parseInt(input.value) + delta;
+  if (val >= 1 && val <= {{ product.stock }}) input.value = val;
+}
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,54 @@
+{% load static %}
+<div class="product-card" id="product-{{ product.pk }}">
+  {% if product.featured %}
+    <span class="featured-badge">⭐ Featured</span>
+  {% endif %}
+  {% if product.stock == 0 %}
+    <span class="out-of-stock-badge">Out of Stock</span>
+  {% endif %}
+
+  <a href="{{ product.get_absolute_url }}" style="text-decoration:none;">
+    <div class="product-card-img">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+      {% else %}
+        <div class="product-card-img-placeholder">🛍️</div>
+      {% endif %}
+    </div>
+  </a>
+
+  <div class="product-card-body">
+    <div class="product-category-badge">{{ product.category.name }}</div>
+    <a href="{{ product.get_absolute_url }}" style="text-decoration:none;">
+      <div class="product-name">{{ product.name }}</div>
+    </a>
+    <div class="product-rating">
+      <span class="stars">
+        {% for i in "12345" %}
+          {% if forloop.counter <= product.average_rating %}★{% else %}☆{% endif %}
+        {% endfor %}
+      </span>
+      ({{ product.reviews.count }})
+    </div>
+    <div class="product-price-row">
+      <span class="product-price">₹{{ product.get_price }}</span>
+      {% if product.discount_price %}
+        <span class="product-original-price">₹{{ product.price }}</span>
+        <span class="discount-badge">-{{ product.discount_percentage }}%</span>
+      {% endif %}
+    </div>
+    {% if product.stock > 0 %}
+      <form method="post" action="{% url 'store:add_to_cart' product.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="btn-add-cart" id="add-cart-{{ product.pk }}">
+          <i class="bi bi-bag-plus"></i> Add to Cart
+        </button>
+      </form>
+    {% else %}
+      <button class="btn-add-cart" disabled style="opacity:0.5;cursor:not-allowed;">
+        <i class="bi bi-x-circle"></i> Out of Stock
+      </button>
+    {% endif %}
+  </div>
+</div>

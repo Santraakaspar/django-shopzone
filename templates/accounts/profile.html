@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}My Profile | ShopZone{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <div class="card-dark text-center">
+        <div style="width:120px;height:120px;margin:0 auto 1.5rem;border-radius:50%;overflow:hidden;border:3px solid var(--border);background:var(--bg-card2);">
+          <img src="{{ user.profile.get_avatar_url }}" alt="Profile Avatar" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <h3 style="color:var(--text-light);font-size:1.3rem;font-weight:700;">{{ user.get_full_name|default:user.username }}</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">{{ user.email }}</p>
+        
+        <div class="d-flex flex-column gap-2">
+          <a href="{% url 'store:order_history' %}" class="btn-outline-custom w-100" style="justify-content:center;">
+            <i class="bi bi-box-seam"></i> My Orders
+          </a>
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger-custom w-100" style="padding:0.7rem;font-weight:600;">
+              <i class="bi bi-box-arrow-right"></i> Log Out
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-lg-8">
+      <div class="card-dark">
+        <h4 style="color:var(--text-light);font-weight:700;margin-bottom:1.5rem;">Edit Profile</h4>
+        
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ user_form.first_name|crispy }}
+            </div>
+            <div class="col-md-6">
+              {{ user_form.last_name|crispy }}
+            </div>
+            <div class="col-12">
+              {{ user_form.email|crispy }}
+            </div>
+            
+            <div class="col-12 mt-4 pt-4" style="border-top:1px solid var(--border);">
+              <h5 style="color:var(--text-light);font-weight:600;margin-bottom:1rem;">Additional Information</h5>
+            </div>
+            
+            <div class="col-md-6">
+              {{ profile_form.phone|crispy }}
+            </div>
+            <div class="col-md-6">
+              {{ profile_form.city|crispy }}
+            </div>
+            <div class="col-12">
+              {{ profile_form.address|crispy }}
+            </div>
+            <div class="col-12">
+              {{ profile_form.bio|crispy }}
+            </div>
+            <div class="col-12">
+              {{ profile_form.avatar|crispy }}
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-primary-custom mt-4">
+            <i class="bi bi-save"></i> Save Changes
+          </button>
+        </form>
+      </div>
+      
+      <!-- Recent Orders Preview -->
+      <div class="card-dark mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 style="color:var(--text-light);font-weight:700;margin:0;">Recent Orders</h4>
+          <a href="{% url 'store:order_history' %}" style="font-size:0.85rem;">View All →</a>
+        </div>
+        
+        {% if orders %}
+          <div class="table-responsive">
+            <table class="table" style="color:var(--text);">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <th style="background:transparent;color:var(--text-muted);font-weight:600;border:none;">Order ID</th>
+                  <th style="background:transparent;color:var(--text-muted);font-weight:600;border:none;">Date</th>
+                  <th style="background:transparent;color:var(--text-muted);font-weight:600;border:none;">Status</th>
+                  <th style="background:transparent;color:var(--text-muted);font-weight:600;border:none;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for order in orders %}
+                <tr style="border-bottom:1px solid rgba(108,61,244,0.1);">
+                  <td style="background:transparent;border:none;padding:1rem 0;">#{{ order.pk }}</td>
+                  <td style="background:transparent;border:none;padding:1rem 0;">{{ order.created_at|date:"M d, Y" }}</td>
+                  <td style="background:transparent;border:none;padding:1rem 0;">
+                    <span class="status-badge status-{{ order.status }}" style="font-size:0.75rem;">{{ order.get_status_display }}</span>
+                  </td>
+                  <td style="background:transparent;border:none;padding:1rem 0;color:var(--primary-light);font-weight:600;">₹{{ order.total_price }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p style="color:var(--text-muted);margin:0;font-size:0.9rem;">No orders found.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

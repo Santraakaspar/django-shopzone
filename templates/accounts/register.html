@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register | ShopZone{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card-dark">
+        <h2 class="section-title text-center mb-1">Create Account</h2>
+        <p class="section-subtitle text-center mb-4">Join ShopZone today</p>
+
+        <form method="post">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button type="submit" class="btn-primary-custom w-100 mt-3" style="justify-content:center;">
+            Register
+          </button>
+        </form>
+
+        <div class="mt-4 text-center" style="font-size:0.9rem;color:var(--text-muted);">
+          Already have an account? <a href="{% url 'accounts:login' %}">Log in here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

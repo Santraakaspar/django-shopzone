@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart | ShopZone{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h1 class="section-title mb-1">🛒 Your Cart</h1>
+  <p class="section-subtitle">
+    {% if cart_items %}{{ cart_items|length }} item{{ cart_items|length|pluralize }} in your cart{% else %}Your cart is empty{% endif %}
+  </p>
+
+  {% if cart_items %}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      {% for item in cart_items %}
+      <div class="cart-item" id="cart-item-{{ item.product.pk }}">
+        <!-- Image -->
+        <div class="cart-item-img">
+          {% if item.product.image %}
+            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">
+          {% else %}
+            🛍️
+          {% endif %}
+        </div>
+
+        <!-- Info -->
+        <div class="cart-item-info">
+          <a href="{{ item.product.get_absolute_url }}" class="cart-item-name">{{ item.product.name }}</a>
+          <div style="font-size:0.82rem;color:var(--text-muted);">{{ item.product.category.name }}</div>
+          <div class="cart-item-price mt-1">₹{{ item.product.get_price }} each</div>
+        </div>
+
+        <!-- Quantity -->
+        <form method="post" action="{% url 'store:update_cart' item.product.pk %}" class="qty-control">
+          {% csrf_token %}
+          <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="qty-btn">−</button>
+          <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="qty-input" onchange="this.form.submit()">
+          <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="qty-btn">+</button>
+        </form>
+
+        <!-- Subtotal -->
+        <div style="text-align:right;min-width:90px;">
+          <div style="font-weight:700;color:var(--text-light);font-size:1rem;">₹{{ item.subtotal }}</div>
+          <form method="post" action="{% url 'store:remove_from_cart' item.product.pk %}" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger-custom" style="font-size:0.78rem;padding:0.3rem 0.7rem;">
+              <i class="bi bi-trash"></i> Remove
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Order Summary -->
+    <div class="col-lg-4">
+      <div class="order-summary-card">
+        <div class="order-summary-title">Order Summary</div>
+        <div class="summary-row">
+          <span>Subtotal ({{ cart_items|length }} items)</span>
+          <span>₹{{ total }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span style="color:var(--success);">FREE</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span style="color:var(--primary-light);">₹{{ total }}</span>
+        </div>
+        <a href="{% url 'store:checkout' %}" class="btn-primary-custom w-100 mt-3" style="justify-content:center;">
+          <i class="bi bi-bag-check"></i> Proceed to Checkout
+        </a>
+        <a href="{% url 'store:product_list' %}" class="btn-outline-custom w-100 mt-2" style="justify-content:center;">
+          <i class="bi bi-arrow-left"></i> Continue Shopping
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">🛒</div>
+    <div class="empty-state-title">Your cart is empty</div>
+    <p style="margin-bottom:1.5rem;">Add some amazing products to get started!</p>
+    <a href="{% url 'store:product_list' %}" class="btn-primary-custom">
+      <i class="bi bi-grid"></i> Browse Products
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout | ShopZone{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h1 class="section-title mb-1">💳 Checkout</h1>
+  <p class="section-subtitle">Complete your order</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="row g-4">
+      <!-- Shipping Form -->
+      <div class="col-lg-7">
+        <div class="form-card">
+          <h5 style="color:var(--text-light);font-weight:700;margin-bottom:1.5rem;">
+            <i class="bi bi-truck"></i> Shipping Information
+          </h5>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Full Name *</label>
+              {{ form.full_name }}
+              {% if form.full_name.errors %}
+                <div style="color:var(--danger);font-size:0.82rem;">{{ form.full_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email *</label>
+              {{ form.email }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone *</label>
+              {{ form.phone }}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Address *</label>
+              {{ form.address }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">City *</label>
+              {{ form.city }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">State *</label>
+              {{ form.state }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">PIN Code *</label>
+              {{ form.pincode }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="col-lg-5">
+        <div class="order-summary-card">
+          <div class="order-summary-title">Order Summary</div>
+          {% for item in cart_items %}
+          <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid var(--border);font-size:0.88rem;">
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+              <span style="color:var(--primary-light);font-weight:600;">{{ item.quantity }}×</span>
+              <span style="color:var(--text);">{{ item.product.name|truncatewords:5 }}</span>
+            </div>
+            <span style="color:var(--text-light);font-weight:600;">₹{{ item.subtotal }}</span>
+          </div>
+          {% endfor %}
+          <div class="summary-row mt-3">
+            <span>Subtotal</span>
+            <span>₹{{ total }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span style="color:var(--success);">FREE</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span style="color:var(--primary-light);">₹{{ total }}</span>
+          </div>
+          <button type="submit" class="btn-primary-custom w-100 mt-3" style="justify-content:center;" id="place-order-btn">
+            <i class="bi bi-bag-check-fill"></i> Place Order
+          </button>
+          <a href="{% url 'store:cart' %}" class="btn-outline-custom w-100 mt-2" style="justify-content:center;">
+            ← Back to Cart
+          </a>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

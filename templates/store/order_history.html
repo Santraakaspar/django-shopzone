@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders | ShopZone{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h1 class="section-title mb-1">📦 My Orders</h1>
+  <p class="section-subtitle">Track your order history</p>
+
+  {% if orders %}
+  <div class="row g-3">
+    {% for order in orders %}
+    <div class="col-12">
+      <div class="card-dark">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+          <div>
+            <div style="font-weight:700;color:var(--text-light);margin-bottom:0.3rem;">
+              Order #{{ order.pk }}
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-muted);">
+              {{ order.created_at|date:"F d, Y" }} · {{ order.items.count }} item{{ order.items.count|pluralize }}
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="status-badge status-{{ order.status }}">
+              ● {{ order.get_status_display }}
+            </span>
+            <span style="font-weight:700;color:var(--primary-light);font-size:1.05rem;">
+              ₹{{ order.total_price }}
+            </span>
+            <a href="{% url 'store:order_detail' order.pk %}" class="btn-outline-custom" style="padding:0.3rem 0.8rem;font-size:0.82rem;">
+              View Details
+            </a>
+          </div>
+        </div>
+
+        <!-- Item Preview -->
+        <div class="d-flex gap-2 mt-3 flex-wrap">
+          {% for item in order.items.all|slice:":4" %}
+          <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:0.4rem 0.7rem;font-size:0.8rem;color:var(--text-muted);">
+            {{ item.quantity }}× {{ item.product.name|truncatewords:4 }}
+          </div>
+          {% endfor %}
+          {% if order.items.count > 4 %}
+          <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:0.4rem 0.7rem;font-size:0.8rem;color:var(--text-muted);">
+            +{{ order.items.count|add:"-4" }} more
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">📭</div>
+    <div class="empty-state-title">No orders yet</div>
+    <p style="margin-bottom:1.5rem;">Your order history will appear here</p>
+    <a href="{% url 'store:product_list' %}" class="btn-primary-custom">
+      <i class="bi bi-grid"></i> Start Shopping
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

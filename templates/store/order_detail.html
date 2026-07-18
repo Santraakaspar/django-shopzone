@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.pk }} | ShopZone{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="mb-4">
+    <a href="{% url 'store:order_history' %}" class="btn-outline-custom" style="padding:0.4rem 1rem;font-size:0.85rem;">
+      ← Back to Orders
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <!-- Order Details -->
+    <div class="col-lg-8">
+      <div class="card-dark mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom:1px solid var(--border);">
+          <div>
+            <h1 style="font-size:1.5rem;font-weight:700;color:var(--text-light);margin:0;">Order #{{ order.pk }}</h1>
+            <div style="font-size:0.9rem;color:var(--text-muted);margin-top:0.2rem;">Placed on {{ order.created_at|date:"F d, Y h:i A" }}</div>
+          </div>
+          <span class="status-badge status-{{ order.status }}" style="font-size:0.9rem;padding:0.4rem 1rem;">
+            ● {{ order.get_status_display }}
+          </span>
+        </div>
+
+        <h5 style="color:var(--text-light);font-weight:600;margin-bottom:1rem;">Items Ordered</h5>
+        {% for item in order.items.all %}
+        <div class="d-flex align-items-center gap-3 py-3" style="border-bottom:1px solid var(--border);">
+          <div style="width:60px;height:60px;background:var(--bg-card2);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+            {% if item.product.image %}
+              <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width:100%;height:100%;object-fit:cover;">
+            {% else %}
+              🛍️
+            {% endif %}
+          </div>
+          <div style="flex:1;">
+            <a href="{{ item.product.get_absolute_url }}" style="font-weight:600;color:var(--text-light);text-decoration:none;">
+              {{ item.product.name }}
+            </a>
+            <div style="font-size:0.85rem;color:var(--text-muted);">{{ item.product.category.name }}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="color:var(--text-muted);font-size:0.85rem;">Qty: {{ item.quantity }}</div>
+            <div style="font-weight:600;color:var(--text-light);">₹{{ item.get_total_price }}</div>
+          </div>
+        </div>
+        {% endfor %}
+
+        <div class="d-flex justify-content-between align-items-center mt-4 pt-3" style="border-top:1px solid var(--border);">
+          <span style="font-weight:600;color:var(--text-muted);">Total Amount</span>
+          <span style="font-size:1.3rem;font-weight:800;color:var(--primary-light);">₹{{ order.total_price }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shipping Info -->
+    <div class="col-lg-4">
+      <div class="card-dark">
+        <h5 style="color:var(--text-light);font-weight:600;margin-bottom:1rem;padding-bottom:0.8rem;border-bottom:1px solid var(--border);">
+          Shipping Information
+        </h5>
+        
+        <div class="mb-3">
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.2rem;">Name</div>
+          <div style="font-weight:500;color:var(--text-light);">{{ order.full_name }}</div>
+        </div>
+        
+        <div class="mb-3">
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.2rem;">Contact</div>
+          <div style="font-weight:500;color:var(--text-light);">
+            {{ order.email }}<br>
+            {{ order.phone }}
+          </div>
+        </div>
+        
+        <div>
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.2rem;">Address</div>
+          <div style="font-weight:500;color:var(--text-light);line-height:1.5;">
+            {{ order.address }}<br>
+            {{ order.city }}, {{ order.state }}<br>
+            PIN: {{ order.pincode }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

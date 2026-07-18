@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ShopZone — Premium Django E-Commerce Store{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ────────────────────────────── -->
+<section class="hero">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <p class="text-uppercase" style="color:var(--primary-light);font-size:0.8rem;font-weight:700;letter-spacing:2px;margin-bottom:0.8rem;">
+          🛒 Django E-Commerce Showcase
+        </p>
+        <h1 class="hero-title">
+          Shop <span class="gradient-text">Smarter,</span><br>Live Better
+        </h1>
+        <p class="hero-subtitle">
+          Discover thousands of premium products at unbeatable prices. Fast delivery, secure checkout, and a seamless experience.
+        </p>
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="{% url 'store:product_list' %}" class="btn-primary-custom">
+            <i class="bi bi-grid"></i> Browse Products
+          </a>
+          <a href="/api/" class="btn-outline-custom">
+            <i class="bi bi-code-slash"></i> View API
+          </a>
+        </div>
+        <!-- Stats Row -->
+        <div class="d-flex gap-4 mt-4">
+          <div>
+            <div style="font-size:1.4rem;font-weight:800;color:var(--text-light);">500+</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">Products</div>
+          </div>
+          <div>
+            <div style="font-size:1.4rem;font-weight:800;color:var(--text-light);">50+</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">Categories</div>
+          </div>
+          <div>
+            <div style="font-size:1.4rem;font-weight:800;color:var(--text-light);">1K+</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">Happy Users</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-flex justify-content-center">
+        <div style="position:relative;width:340px;height:340px;">
+          <div style="position:absolute;inset:0;background:radial-gradient(circle,rgba(108,61,244,0.3) 0%,transparent 70%);border-radius:50%;"></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:8rem;filter:drop-shadow(0 0 40px rgba(108,61,244,0.5));">🛍️</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CATEGORIES ─────────────────────── -->
+{% if categories %}
+<section class="py-5">
+  <div class="container">
+    <h2 class="section-title">Shop by Category</h2>
+    <p class="section-subtitle">Browse our wide range of product categories</p>
+    <div class="categories-grid">
+      {% for category in categories %}
+      <a href="{% url 'store:product_list_by_category' category.slug %}" style="text-decoration:none;">
+        <div class="category-card">
+          <div class="category-icon">
+            {% if category.image %}
+              <img src="{{ category.image.url }}" alt="{{ category.name }}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;">
+            {% else %}
+              🏷️
+            {% endif %}
+          </div>
+          <div class="category-name">{{ category.name }}</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">
+            {{ category.products.count }} products
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<hr class="section-divider">
+
+<!-- ── FEATURED PRODUCTS ──────────────── -->
+{% if featured_products %}
+<section class="py-4">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <h2 class="section-title">⭐ Featured Products</h2>
+      <a href="{% url 'store:product_list' %}" class="btn-outline-custom" style="padding:0.4rem 1rem;font-size:0.85rem;">View All →</a>
+    </div>
+    <p class="section-subtitle">Handpicked just for you</p>
+    <div class="products-grid">
+      {% for product in featured_products %}
+        {% include 'store/_product_card.html' %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<hr class="section-divider">
+
+<!-- ── ALL PRODUCTS ───────────────────── -->
+<section class="py-4">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <h2 class="section-title">🔥 New Arrivals</h2>
+      <a href="{% url 'store:product_list' %}" class="btn-outline-custom" style="padding:0.4rem 1rem;font-size:0.85rem;">View All →</a>
+    </div>
+    <p class="section-subtitle">Fresh products, just in</p>
+    {% if all_products %}
+      <div class="products-grid">
+        {% for product in all_products %}
+          {% include 'store/_product_card.html' %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📦</div>
+        <div class="empty-state-title">No products yet</div>
+        <p>Add products via the <a href="{% url 'admin:index' %}">Admin Panel</a></p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ── FEATURES STRIP ─────────────────── -->
+<section class="py-5" style="background:var(--bg-card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-6 col-md-3">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">🚀</div>
+        <div style="font-weight:600;color:var(--text-light);">Fast Delivery</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);">Ships in 24 hours</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">🔒</div>
+        <div style="font-weight:600;color:var(--text-light);">Secure Payment</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);">SSL encrypted checkout</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">↩️</div>
+        <div style="font-weight:600;color:var(--text-light);">Easy Returns</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);">30-day return policy</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">🎧</div>
+        <div style="font-weight:600;color:var(--text-light);">24/7 Support</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);">Always here for you</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
